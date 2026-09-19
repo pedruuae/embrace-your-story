@@ -1,24 +1,40 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { ArrowUpRight, ArrowRight, Menu, X, MessageCircle, MapPin, ChevronDown } from 'lucide-react';
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+export const Route = createFileRoute('/')({ component: Home });
+const wa = (text = 'Olá! Vim pelo site e gostaria de agendar um horário.') => `https://wa.me/5531972340857?text=${encodeURIComponent(text)}`;
+const nav = [['Início','#inicio'],['Especialidade','#especialidade'],['Serviços','#servicos'],['Resultados','#resultados'],['Sobre','#sobre'],['Depoimentos','#depoimentos'],['Contato','#contato']];
+const services = [
+ ['Alisamentos','Fios mais alinhados, com acabamento bonito e cuidado durante todo o processo.','alisamento'],
+ ['Tratamentos capilares','Cuidados direcionados às necessidades dos fios, ajudando a recuperar maciez e vitalidade.','tratamentos capilares'],
+ ['Reconstrução capilar','Cuidado intensivo para cabelos que precisam de atenção e fortalecimento da fibra.','reconstrução capilar'],
+ ['Esmaltação','Um cuidado complementar para completar seu momento de autocuidado.','esmaltação'],
+];
+const faqs = [
+ ['Como saber qual procedimento é ideal para meu cabelo?','A escolha depende das características e necessidades dos seus fios. Entre em contato pelo WhatsApp para explicar o que você procura e receber orientações sobre o atendimento.'],
+ ['Preciso agendar antes?','Sim. Entre em contato pelo WhatsApp para consultar horários disponíveis.'],
+ ['Onde fica o atendimento?','O atendimento é realizado em Justinópolis – MG. As informações completas podem ser confirmadas durante o agendamento.'],
+ ['Vocês fazem tratamentos além de alisamento?','Sim. Também estão disponíveis tratamentos e reconstrução capilar, além de esmaltação.'],
+];
+function Photo({label, className = ''}:{label:string;className?:string}) { return <div className={`photo ${className}`} role="img" aria-label={`Espaço para ${label}`}><span className="photo-monogram">LS</span><span className="photo-label">{label}</span></div> }
+function Cta({children, text, pale=false}:{children:React.ReactNode;text?:string;pale?:boolean}) { return <a className={`cta ${pale?'pale':''}`} href={wa(text)} target="_blank" rel="noopener noreferrer">{children}<ArrowUpRight size={18}/></a> }
+function Home() {
+ const [open,setOpen]=useState(false), [scrolled,setScrolled]=useState(false);
+ useEffect(()=>{const fn=()=>setScrolled(scrollY>25);fn();addEventListener('scroll',fn,{passive:true});return()=>removeEventListener('scroll',fn)},[]);
+ useEffect(()=>{if(!('IntersectionObserver' in window))return;const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');o.unobserve(e.target)}}),{threshold:.06});document.querySelectorAll('.reveal').forEach(e=>o.observe(e));return()=>o.disconnect()},[]);
+ return <>
+ <header className={`header ${scrolled?'scrolled':''}`}><div className="container header-inner"><a className="logo" href="#inicio" onClick={()=>setOpen(false)}><small>STUDIO</small><strong>Larissa Sales</strong></a><nav className={open?'open':''} aria-label="Menu principal">{nav.map(([name,link])=><a key={link} href={link} onClick={()=>setOpen(false)}>{name}</a>)}</nav><a className="header-cta" href={wa()} target="_blank" rel="noopener noreferrer">Agendar horário <ArrowUpRight size={16}/></a><button className="menu-button" aria-label={open?'Fechar menu':'Abrir menu'} aria-expanded={open} onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div></header>
+ <main><section className="hero" id="inicio"><div className="container hero-grid"><div className="hero-copy reveal"><span className="eyebrow">BELEZA · CUIDADO · SAÚDE CAPILAR</span><h1>Lisos bonitos começam com <em>cabelos saudáveis.</em></h1><p className="lead">Alisamentos e tratamentos personalizados para quem busca fios alinhados, bonitos e bem cuidados.</p><p className="place"><MapPin size={16}/> Especialista em Lisos Saudáveis · Justinópolis – MG</p><div className="actions"><Cta>Agendar meu horário</Cta><a className="quiet-link" href="#servicos">Conhecer os tratamentos <ArrowRight size={17}/></a></div><span className="tiny">Atendimento com horário agendado</span></div><div className="hero-image reveal"><Photo className="hero-photo" label="Sua foto profissional aqui"/><span>BELEZA QUE COMEÇA PELO CUIDADO</span></div></div></section>
+ <section className="section specialty" id="especialidade"><div className="container split"><Photo className="specialty-photo reveal" label="Foto real do atendimento ou dos cabelos"/><div className="reveal"><span className="eyebrow">A NOSSA ESSÊNCIA</span><h2>Muito além de <em>simplesmente alisar.</em></h2><p>Um cabelo liso bonito não depende apenas do resultado imediato. Cada fio possui necessidades diferentes e merece cuidados específicos para preservar sua aparência, resistência e saúde.</p><p>Aqui, alisamentos e tratamentos caminham juntos para buscar um resultado bonito, alinhado e bem cuidado.</p><div className="benefits">{[['Cuidado personalizado','Cada cabelo possui características e necessidades diferentes.'],['Foco na saúde dos fios','O cuidado não termina quando o procedimento acaba.'],['Resultado + tratamento','Beleza e cuidado trabalhando juntos.']].map(([title,copy],i)=><div key={title}><span>0{i+1}</span><div><h3>{title}</h3><p>{copy}</p></div></div>)}</div></div></div></section>
+ <section className="section services" id="servicos"><div className="container"><div className="heading reveal"><div><span className="eyebrow">NOSSOS SERVIÇOS</span><h2>Cuidados pensados para você <em>e para o seu cabelo.</em></h2></div><p>Conheça os principais serviços disponíveis.</p></div><div className="service-grid">{services.map(([title,copy,term],i)=><article className="service reveal" key={title}><small>0{i+1} / CUIDADO</small><div><h3>{title}</h3><p>{copy}</p></div><a href={wa(`Olá! Vim pelo site e gostaria de saber mais sobre ${term}.`)} target="_blank" rel="noopener noreferrer">{title==='Esmaltação'?'Agendar esmaltação':'Quero saber mais'} <ArrowUpRight size={18}/></a></article>)}</div></div></section>
+ <section className="section results" id="resultados"><div className="container"><div className="heading reveal"><div><span className="eyebrow">TRABALHOS REAIS</span><h2>Resultados que <em>falam por si.</em></h2></div><p>Cada cabelo tem sua história. Aqui, cada resultado recebe atenção aos detalhes.</p></div><div className="results-grid"><Photo className="large reveal" label="Adicione uma foto real de resultado"/><Photo className="reveal" label="Adicione uma foto real de resultado"/><Photo className="reveal" label="Adicione uma foto real de resultado"/></div><p className="result-note">Em breve, registros reais dos atendimentos por aqui.</p></div></section>
+ <section className="section process"><div className="container"><div className="heading reveal"><div><span className="eyebrow">A EXPERIÊNCIA</span><h2>Seu cuidado começa <em>antes do procedimento.</em></h2></div></div><div className="steps">{[['Converse comigo','Entre em contato pelo WhatsApp e conte o que você deseja.'],['Entendemos seu cabelo','O procedimento adequado depende das características e necessidades dos seus fios.'],['Seu momento de cuidado','Realizamos o serviço escolhido com atenção aos detalhes.'],['Cuidados após o atendimento','Receba orientações para ajudar a manter seu cabelo bonito e bem cuidado.']].map(([title,copy],i)=><div className="reveal" key={title}><span>0{i+1}</span><h3>{title}</h3><p>{copy}</p></div>)}</div></div></section>
+ <section className="section about" id="sobre"><div className="container split"><div className="reveal"><span className="eyebrow">PRAZER, LARISSA</span><h2>Cuidado, técnica e <em>amor pelo que faço.</em></h2><p>Meu trabalho é dedicado a mulheres que desejam cuidar da beleza sem deixar a saúde dos cabelos de lado.</p><p>Sou especialista em lisos saudáveis e acredito que cada cabelo precisa ser observado de forma individual. Por isso, busco entender as necessidades dos fios antes de cada procedimento e oferecer um atendimento próximo, cuidadoso e personalizado.</p><Cta text="Olá! Vim pelo site e gostaria de conversar sobre um atendimento.">Vamos conversar</Cta></div><Photo className="about-photo reveal" label="Sua foto real aqui"/></div></section>
+ <section className="section testimonials" id="depoimentos"><div className="container centered reveal"><span className="eyebrow">EXPERIÊNCIAS REAIS</span><h2>Quem cuida, <em>recomenda.</em></h2><p>Este espaço está reservado para avaliações reais de clientes. Em breve, você poderá conhecer suas experiências aqui.</p><div className="testimonial-placeholder">Depoimentos reais serão adicionados aqui</div></div></section>
+ <section className="section faq"><div className="container faq-grid"><div className="reveal"><span className="eyebrow">PARA VOCÊ SABER</span><h2>Dúvidas <em>frequentes.</em></h2><p>Ficou com outra dúvida? Podemos conversar pelo WhatsApp.</p><a className="quiet-link" href={wa('Olá! Vim pelo site e tenho uma dúvida sobre o atendimento.')} target="_blank" rel="noopener noreferrer">Tirar minha dúvida <ArrowUpRight size={18}/></a></div><div className="reveal">{faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19}/></summary><p>{a}</p></details>)}</div></div></section>
+ <section className="contact" id="contato"><div className="container centered reveal"><span className="eyebrow">SEU MOMENTO DE CUIDADO</span><h2>Seu cabelo merece mais do que um procedimento. <em>Merece cuidado.</em></h2><p>Converse comigo e encontre o atendimento ideal para você.</p><Cta pale><MessageCircle size={18}/> Agendar pelo WhatsApp</Cta></div></section><div className="location"><div className="container"><MapPin size={19}/> Atendimento em <strong>Justinópolis – MG</strong><span>Endereço completo informado durante o agendamento</span></div></div></main>
+ <footer><div className="container footer-main"><div><a className="logo" href="#inicio"><small>STUDIO</small><strong>Larissa Sales</strong></a><p>Especialista em Lisos Saudáveis<br/>Justinópolis – MG</p></div><nav aria-label="Menu do rodapé">{[nav[0],nav[2],nav[4],nav[3],nav[6]].map(([n,l])=><a key={l} href={l}>{n}</a>)}</nav><div><small>VAMOS CONVERSAR?</small><a className="footer-phone" href={wa()} target="_blank" rel="noopener noreferrer">(31) 97234-0857 <ArrowUpRight size={18}/></a></div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} Studio Larissa Sales. Todos os direitos reservados.</span><a href="#inicio">Voltar ao topo ↑</a></div></footer>
+ <a className="floating" href={wa()} target="_blank" rel="noopener noreferrer" aria-label="Agendar pelo WhatsApp"><MessageCircle size={23}/></a>
+ </>;
 }
